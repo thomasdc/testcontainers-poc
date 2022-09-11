@@ -9,9 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Bogus" Version="34.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     <PackageReference Include="Npgsql" Version="6.0.6" />
+    <PackageReference Include="SolrNet.Core" Version="1.1.1" />
+    <PackageReference Include="SolrNet.Microsoft.DependencyInjection" Version="1.1.1" />
     <PackageReference Include="Testcontainers" Version="2.1.0" />
   </ItemGroup>
 
