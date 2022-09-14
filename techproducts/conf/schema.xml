@@ -110,6 +110,19 @@
          If you don't need it, consider removing it and the corresponding copyField directive.
     -->
 
+    <!-- Custom fields -->
+    <field name="sku" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
+    <field name="name" type="string" indexed="true" stored="true" multiValued="false" required="true"/> 
+    <field name="description" type="text_general" indexed="true" stored="true" multiValued="false" required="true"/> 
+    <field name="manu_str" type="string" indexed="true" stored="true" multiValued="true" required="false"/>
+    <field name="cat" type="string" indexed="true" stored="true" multiValued="true" required="false"/>
+    <field name="color" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
+    <field name="price" type="pfloat" indexed="true" stored="true" multiValued="false" required="true" docValues="true"/>
+    <field name="popularity" type="pint" indexed="true" stored="true" multiValued="false" required="true" docValues="true"/>
+    <field name="inStock" type="boolean" indexed="true" stored="true" multiValued="false" required="true"/>
+    <field name="timestamp" type="pdate" indexed="true" stored="true" multiValued="false" required="true"/>
+    <copyField source="description" dest="_text_"/>
+
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
     <field name="_version_" type="plong" indexed="false" stored="false"/>
