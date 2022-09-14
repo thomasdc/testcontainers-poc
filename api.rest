@@ -22,3 +22,15 @@ Content-Type: application/json
         }
     }
 }
+
+###
+
+GET http://localhost:15666/solr/techproducts/select
+    ?facet.field=cat
+    &facet=true
+    &fq=price%3A%5B0%20TO%208%5D
+    &q=aliquam
+    &rows=100
+    &sort=price%20asc
+    &start=0
+    &wt=json

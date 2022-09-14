@@ -76,7 +76,7 @@ async Task RunSolr()
     
     var solr = provider.GetRequiredService<ISolrOperations<Product>>();
     var sw = Stopwatch.StartNew();
-    var products = Product.Generator.Generate(10_000);
+    var products = Product.Generator.Generate(100_000);
     logger.LogInformation("Products generated in {Elapsed}", sw.Elapsed);
     sw.Restart();
     await solr.AddRangeAsync(products);
@@ -95,6 +95,13 @@ async Task RunSolr()
             FilterQueries = new[]
             {
                 new SolrQueryByRange<decimal>("price", 0m, 8m)
+            },
+            Facet = new FacetParameters
+            {
+                Queries = new ISolrFacetQuery[]
+                {
+                    new SolrFacetFieldQuery("cat")
+                }
             }
         });
     logger.LogInformation("Query executed in {Elapsed}", sw.Elapsed);
