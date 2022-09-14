@@ -58,24 +58,25 @@ async Task RunSolr()
 {
     using var consumer = Consume.RedirectStdoutAndStderrToStream(new MemoryStream(), new MemoryStream());
     var builder = new TestcontainersBuilder<TestcontainersContainer>()
-                .WithName($"SampleSolrApp-Solr-{Guid.NewGuid()}")
-                .WithImage("solr:8.8.2")
-                .WithPortBinding(8983, assignRandomHostPort: true)
-                .WithCommand("/opt/docker-solr/scripts/solr-precreate", "techproducts")
+                .WithName("testcontainers-poc-solr")
+                .WithImage("solr:8")
+                .WithPortBinding(15666, 8983)
+                .WithBindMount($"{Directory.GetCurrentDirectory()}\\..\\..\\..\\techproducts", "/techproducts")
+                .WithCommand("/opt/docker-solr/scripts/solr-precreate", "techproducts", "/techproducts")
                 .WithOutputConsumer(consumer)
                 .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged(consumer.Stdout, "Registered new searcher"));
-
+    
     await using var container = builder.Build();
     await container.StartAsync();
-
+    
     var provider = new ServiceCollection()
         .AddLogging(_ => _.AddConsole())
         .AddSolrNet<Product>($"http://{container.Hostname}:{container.GetMappedPublicPort(8983)}/solr/techproducts")
         .BuildServiceProvider();
-
+    
     var solr = provider.GetRequiredService<ISolrOperations<Product>>();
     var sw = Stopwatch.StartNew();
-    var products = Product.Generator.Generate(100_000);
+    var products = Product.Generator.Generate(10_000);
     logger.LogInformation("Products generated in {Elapsed}", sw.Elapsed);
     sw.Restart();
     await solr.AddRangeAsync(products);
@@ -83,8 +84,19 @@ async Task RunSolr()
     logger.LogInformation("Products added to solr index in {Elapsed}", sw.Elapsed);
     sw.Restart();
 
-    var query = new SolrQuery("*:*");
-    var results = await solr.QueryAsync("*:*", new QueryOptions() { Rows = 0 });
+    var results = await solr.QueryAsync("aliquam",
+        new QueryOptions
+        {
+            Rows = 100,
+            OrderBy = new[]
+            {
+                new SortOrder("price", Order.ASC)
+            },
+            FilterQueries = new[]
+            {
+                new SolrQueryByRange<decimal>("price", 0m, 8m)
+            }
+        });
     logger.LogInformation("Query executed in {Elapsed}", sw.Elapsed);
     logger.LogInformation("Got {Count} results from solr", results.NumFound);
 }
@@ -100,24 +112,27 @@ public class Product
     [SolrField("name")]
     public string Name { get; set; }
 
+    [SolrField("description")]
+    public string Description { get; set; }
+
     [SolrField("manu_str")]
     public ICollection<string> Manufacturer { get; set; }
-
+    
     [SolrField("cat")]
     public ICollection<string> Categories { get; set; }
-
+    
     [SolrField("color")]
     public string Color { get; set; }
-
+    
     [SolrField("price")]
     public decimal Price { get; set; }
-
+    
     [SolrField("popularity")]
     public int Popularity { get; set; }
-
+    
     [SolrField("inStock")]
     public bool InStock { get; set; }
-
+    
     [SolrField("timestamp")]
     public DateTime Timestamp { get; set; }
 
@@ -125,7 +140,8 @@ public class Product
         .RuleFor(p => p.Id, p => p.Random.AlphaNumeric(10))
         .RuleFor(p => p.SKU, p => p.Commerce.Ean13())
         .RuleFor(p => p.Name, p => p.Commerce.ProductName())
-        .RuleFor(p => p.Manufacturer, p => new[] { p.Company.CompanyName() })
+        .RuleFor(p => p.Description, p => p.Lorem.Paragraphs())
+        .RuleFor(p => p.Manufacturer, p => new[] {p.Company.CompanyName()})
         .RuleFor(p => p.Categories, p => p.Commerce.Categories(p.Random.Number(20)))
         .RuleFor(p => p.Color, p => p.Commerce.Color())
         .RuleFor(p => p.Price, p => p.Random.GaussianDecimal(8, 2))
