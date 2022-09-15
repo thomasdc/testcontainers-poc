@@ -119,7 +119,7 @@
     <field name="color" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
     <field name="price" type="pfloat" indexed="true" stored="true" multiValued="false" required="true" docValues="true"/>
     <field name="popularity" type="pint" indexed="true" stored="true" multiValued="false" required="true" docValues="true"/>
-    <field name="inStock" type="boolean" indexed="true" stored="true" multiValued="false" required="true"/>
+    <field name="in_stock" type="boolean" indexed="true" stored="true" multiValued="false" required="true"/>
     <field name="timestamp" type="pdate" indexed="true" stored="true" multiValued="false" required="true"/>
     <copyField source="description" dest="_text_"/>
 

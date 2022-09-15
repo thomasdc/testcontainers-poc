@@ -34,3 +34,26 @@ GET http://localhost:15666/solr/techproducts/select
     &sort=price%20asc
     &start=0
     &wt=json
+
+###
+
+POST http://localhost:15666/solr/techproducts/update/extract
+    ?literal.id=uploadedviarestapi
+    &literal.sku=13371337
+    &literal.name=Practical Frozen Hat
+    &literal.manu_str=Pfannerstill, Labadie and Miller
+    &literal.cat=Yolo
+    &literal.color=gold
+    &literal.price=10.42
+    &literal.popularity=3
+    &literal.in_stock=true
+    &commit=true
+
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="myfile"; filename="Game_of_Thrones.pdf"
+Content-Type: application/pdf
+
+< ./Game_of_Thrones.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

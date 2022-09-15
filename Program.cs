@@ -137,7 +137,7 @@ public class Product
     [SolrField("popularity")]
     public int Popularity { get; set; }
     
-    [SolrField("inStock")]
+    [SolrField("in_stock")]
     public bool InStock { get; set; }
     
     [SolrField("timestamp")]

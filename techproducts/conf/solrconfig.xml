@@ -58,6 +58,9 @@
               <lib dir="./lib" />
     -->
 
+  <lib dir="${solr.install.dir:../../..}/contrib/extraction/lib" regex=".*\.jar" />
+  <lib dir="${solr.install.dir:../../..}/dist/" regex="solr-cell-\d.*\.jar" />
+
   <!-- A 'dir' option by itself adds any files found in the directory
        to the classpath, this is useful for including all jars in a
        directory.
@@ -755,6 +758,17 @@
        not be initialized until the first request that uses it.
 
     -->
+  <requestHandler name="/update/extract"
+                  startup="lazy"
+                  class="solr.extraction.ExtractingRequestHandler" >
+	  <lst name="defaults">
+		  <str name="lowernames">true</str>
+		  <str name="fmap.content">description</str>
+		  <str name="fmap.last_modified">timestamp</str>
+          <str name="uprefix">ignored_</str>
+	  </lst>
+  </requestHandler>
+
   <!-- SearchHandler
 
        http://wiki.apache.org/solr/SearchHandler
