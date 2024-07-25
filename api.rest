@@ -59,7 +59,21 @@ Content-Type: application/pdf
 
 ###
 
+// allowed fields and their defaults: https://solr.apache.org/guide/solr/latest/indexing-guide/fields.html
+POST http://localhost:15666/solr/techproducts/schema
+Content-Type: application/json
+
+{
+  "add-field": {
+    "name": "sku",
+    "type": "string",
+    "required": true
+  }
+}
+
+###
+
 // Get schema definition of code through Schema API
-GET http://localhost:8986/solr/techproducts/schema
+GET http://localhost:15666/solr/techproducts/schema
 
 ###
