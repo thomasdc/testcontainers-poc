@@ -59,10 +59,10 @@ async Task RunSolr()
     using var consumer = Consume.RedirectStdoutAndStderrToStream(new MemoryStream(), new MemoryStream());
     var builder = new TestcontainersBuilder<TestcontainersContainer>()
                 .WithName("testcontainers-poc-solr")
-                .WithImage("solr:8")
+                .WithImage("solr:9.6.1")
                 .WithPortBinding(15666, 8983)
                 .WithBindMount($"{Directory.GetCurrentDirectory()}\\..\\..\\..\\techproducts", "/techproducts")
-                .WithCommand("/opt/docker-solr/scripts/solr-precreate", "techproducts", "/techproducts")
+                .WithCommand("/opt/solr-9.6.1/docker/scripts/solr-precreate", "techproducts", "/techproducts")
                 .WithOutputConsumer(consumer)
                 .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged(consumer.Stdout, "Registered new searcher"));
     
