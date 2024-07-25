@@ -17,8 +17,8 @@ Content-Type: application/json
         "color":"purple",
         "price":64.2,
         "popularity":9,
-        "inStock":true,
-        "timestamp":"{{$datetime iso8601}}",
+        "in_stock":true,
+        "timestamp":"{{$datetime iso8601}}"
         }
     }
 }
@@ -57,3 +57,10 @@ Content-Type: application/pdf
 
 < ./Game_of_Thrones.pdf
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+// Get schema definition of code through Schema API
+GET http://localhost:8986/solr/techproducts/schema
+
+###
