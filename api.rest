@@ -48,7 +48,6 @@ POST http://localhost:15666/solr/techproducts/update/extract
     &literal.popularity=3
     &literal.in_stock=true
     &commit=true
-
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
