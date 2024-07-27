@@ -58,7 +58,7 @@ async Task RunSolr()
         .WithPortBinding(15666, 8983)
         .WithLogger(logger)
         .WithBindMount($"{Directory.GetCurrentDirectory()}\\..\\..\\..\\techproducts", "/techproducts")
-        .WithCommand("/opt/solr-9.6.1/docker/scripts/solr-precreate", "techproducts", "/techproducts")
+        .WithCommand("/opt/solr/docker/scripts/solr-precreate", "techproducts", "/techproducts")
         .WithWaitStrategy(Wait.ForUnixContainer().UntilHttpRequestIsSucceeded(x => x.ForPort(8983)));
     
     await using var container = builder.Build();
