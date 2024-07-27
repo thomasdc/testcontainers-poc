@@ -1,8 +1,6 @@
 ﻿using Bogus;
 using Bogus.Distributions.Gaussian;
 using DotNet.Testcontainers.Builders;
-using DotNet.Testcontainers.Configurations;
-using DotNet.Testcontainers.Containers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
@@ -10,10 +8,9 @@ using SolrNet;
 using SolrNet.Attributes;
 using SolrNet.Commands.Parameters;
 using System.Diagnostics;
+using Testcontainers.PostgreSql;
 
 var logger = LoggerFactory.Create(_ => _.AddConsole()).CreateLogger<Program>();
-
-TestcontainersSettings.Logger = logger;
 
 await RunNginx();
 await RunPostgres();
@@ -21,17 +18,14 @@ await RunSolr();
 
 async Task RunPostgres()
 {
-    var builder = new TestcontainersBuilder<PostgreSqlTestcontainer>()
-        .WithDatabase(new PostgreSqlTestcontainerConfiguration
-        {
-            Database = "db",
-            Username = "postgres",
-            Password = "postgres",
-        });
+    var builder = new PostgreSqlBuilder()
+        .WithDatabase("db")
+        .WithUsername("postgres")
+        .WithPassword("postgres");
 
     await using var container = builder.Build();
     await container.StartAsync();
-    await using var connection = new NpgsqlConnection(container.ConnectionString);
+    await using var connection = new NpgsqlConnection(container.GetConnectionString());
     await connection.OpenAsync();
     await using var command = new NpgsqlCommand("SELECT 1", connection);
     await using var reader = await command.ExecuteReaderAsync();
@@ -42,7 +36,7 @@ async Task RunPostgres()
 
 async Task RunNginx()
 {
-    var builder = new TestcontainersBuilder<TestcontainersContainer>()
+    var builder = new ContainerBuilder()
       .WithImage("nginx")
       .WithName("nginx")
       .WithPortBinding(80)
@@ -56,15 +50,13 @@ async Task RunNginx()
 
 async Task RunSolr()
 {
-    using var consumer = Consume.RedirectStdoutAndStderrToStream(new MemoryStream(), new MemoryStream());
-    var builder = new TestcontainersBuilder<TestcontainersContainer>()
-                .WithName("testcontainers-poc-solr")
-                .WithImage("solr:9.6.1")
-                .WithPortBinding(15666, 8983)
-                .WithBindMount($"{Directory.GetCurrentDirectory()}\\..\\..\\..\\techproducts", "/techproducts")
-                .WithCommand("/opt/solr-9.6.1/docker/scripts/solr-precreate", "techproducts", "/techproducts")
-                .WithOutputConsumer(consumer)
-                .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged(consumer.Stdout, "Registered new searcher"));
+    var builder = new ContainerBuilder()
+        .WithName("testcontainers-poc-solr")
+        .WithImage("solr:9.6.1")
+        .WithPortBinding(15666, 8983)
+        .WithBindMount($"{Directory.GetCurrentDirectory()}\\..\\..\\..\\techproducts", "/techproducts")
+        .WithCommand("/opt/solr-9.6.1/docker/scripts/solr-precreate", "techproducts", "/techproducts")
+        .WithWaitStrategy(Wait.ForUnixContainer().UntilHttpRequestIsSucceeded(x => x.ForPort(8983)));
     
     await using var container = builder.Build();
     await container.StartAsync();
