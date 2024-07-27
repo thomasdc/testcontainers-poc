@@ -21,7 +21,8 @@ async Task RunPostgres()
     var builder = new PostgreSqlBuilder()
         .WithDatabase("db")
         .WithUsername("postgres")
-        .WithPassword("postgres");
+        .WithPassword("postgres")
+        .WithLogger(logger);
 
     await using var container = builder.Build();
     await container.StartAsync();
@@ -40,6 +41,7 @@ async Task RunNginx()
       .WithImage("nginx")
       .WithName("nginx")
       .WithPortBinding(80)
+      .WithLogger(logger)
       .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(80));
 
     await using var container = builder.Build();
@@ -54,6 +56,7 @@ async Task RunSolr()
         .WithName("testcontainers-poc-solr")
         .WithImage("solr:9.6.1")
         .WithPortBinding(15666, 8983)
+        .WithLogger(logger)
         .WithBindMount($"{Directory.GetCurrentDirectory()}\\..\\..\\..\\techproducts", "/techproducts")
         .WithCommand("/opt/solr-9.6.1/docker/scripts/solr-precreate", "techproducts", "/techproducts")
         .WithWaitStrategy(Wait.ForUnixContainer().UntilHttpRequestIsSucceeded(x => x.ForPort(8983)));
